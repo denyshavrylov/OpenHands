@@ -86,6 +86,23 @@ RUN find /app \! -group app -exec chgrp app {} +
 COPY --chown=openhands:app --chmod=770 --from=frontend-builder /app/build ./frontend/build
 COPY --chown=openhands:app --chmod=770 ./containers/app/entrypoint.sh /app/entrypoint.sh
 
+# https://github.com/microsoft/autogen/blob/main/python/packages/autogen-magentic-one/README.md
+RUN git clone https://github.com/microsoft/autogen.git
+RUN cd autogen/python
+RUN uv sync  --all-extras
+RUN source .venv/bin/activate
+RUN cd packages/autogen-magentic-one
+RUN pip install -e .
+RUN playwright install --with-deps chromium
+# Specify logs directory
+#python examples/example.py --logs_dir ./logs
+
+# Enable human-in-the-loop mode
+#python examples/example.py --logs_dir ./logs --hil_mode
+
+# Save screenshots of browser
+#python examples/example.py --logs_dir ./logs --save_screenshots
+
 USER root
 
 WORKDIR /app

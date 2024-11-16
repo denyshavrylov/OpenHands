@@ -1,4 +1,4 @@
-# Workflow that builds, tests and then pushes the OpenHands and runtime docker images to the ghcr.io repository
+# Workflow that builds, tests and then pushes the OpenHands and runtime docker images to the NW ECR repository
 name: Docker
 
 # Always run on "main"
@@ -59,10 +59,17 @@ jobs:
         uses: docker/setup-qemu-action@v3.0.0
         with:
           image: tonistiigi/binfmt:latest
-      - name: Login to GHCR
-        uses: docker/login-action@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          registry: ghcr.io
+          aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - name: Login to NW AWS ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: ${{ aws-account-id }}.dkr.ecr.${{ aws-region }}.amazonaws.com
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Docker Buildx
@@ -122,10 +129,17 @@ jobs:
         uses: docker/setup-qemu-action@v3.0.0
         with:
           image: tonistiigi/binfmt:latest
-      - name: Login to GHCR
-        uses: docker/login-action@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          registry: ghcr.io
+          aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - name: Login to NW AWS ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: ${{ aws-account-id }}.dkr.ecr.${{ aws-region }}.amazonaws.com
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Docker Buildx
